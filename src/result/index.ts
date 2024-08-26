@@ -20,7 +20,7 @@ export class Result<T, E> {
     * @param {T} data - The data to be returned typed in generic T
     @returns {Result<T, undefined>}
     */
-  static successful<T>(data: T): Result<T, undefined> {
+  public static successful<T>(data: T): Result<T, undefined> {
     return new Result(data, undefined);
   }
 
@@ -30,7 +30,7 @@ export class Result<T, E> {
    * @param {E[]} errors - The errors to be returned typed in generic E
    * @returns {Result<undefined, E>}
    */
-  static failure<E>(errors: E[]): Result<undefined, E> {
+  public static failure<E>(errors: E[]): Result<undefined, E> {
     return new Result(undefined, errors);
   }
 
@@ -41,39 +41,8 @@ export class Result<T, E> {
    * @param {E[]} errors - The errors to be returned typed in generic E
    * @returns {Result<T, E>}
    */
-  static partialSuccess<T, E>(data: T, errors: E[]): Result<T, E> {
+  public static partialSuccess<T, E>(data: T, errors: E[]): Result<T, E> {
     return new Result(data, errors);
-  }
-
-  //---------------------------------------------------------
-  // Result Methods
-  //---------------------------------------------------------
-
-  /**
-   * Check if the result is successful
-   *
-   * @returns {boolean}
-   */
-  public isSuccessful(): boolean {
-    return this.data !== undefined && this.errors === undefined;
-  }
-
-  /**
-   * Check if the result is a failure
-   *
-   * @returns {boolean}
-   */
-  public isFailure(): boolean {
-    return this.data === undefined && this.errors !== undefined;
-  }
-
-  /**
-   * Check if the result is a partial success
-   *
-   * @returns {boolean}
-   */
-  public isPartialSuccess(): boolean {
-    return this.data !== undefined && this.errors !== undefined;
   }
 
   //---------------------------------------------------------
@@ -116,6 +85,37 @@ export class Result<T, E> {
     fnError: (errors: Undefinable<E[]>) => RE[],
   ): Undefinable<RE[]> {
     return fnError(this.errors);
+  }
+
+  //---------------------------------------------------------
+  // Result Methods
+  //---------------------------------------------------------
+
+  /**
+   * Check if the result is successful
+   *
+   * @returns {boolean}
+   */
+  public isSuccessful(): boolean {
+    return this.data !== undefined && this.errors === undefined;
+  }
+
+  /**
+   * Check if the result is a failure
+   *
+   * @returns {boolean}
+   */
+  public isFailure(): boolean {
+    return this.data === undefined && this.errors !== undefined;
+  }
+
+  /**
+   * Check if the result is a partial success
+   *
+   * @returns {boolean}
+   */
+  public isPartialSuccess(): boolean {
+    return this.data !== undefined && this.errors !== undefined;
   }
 
   //---------------------------------------------------------
