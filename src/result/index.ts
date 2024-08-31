@@ -1,13 +1,13 @@
-import { Undefinable } from "../types";
+import { Undefinable } from '../types'
 
 export class Result<T, E> {
-  readonly data: Undefinable<T>;
+  readonly data: Undefinable<T>
 
-  readonly errors: Undefinable<E[]>;
+  readonly errors: Undefinable<E>
 
-  constructor(data: Undefinable<T>, errors: Undefinable<E[]>) {
-    this.data = data;
-    this.errors = errors;
+  constructor(data: Undefinable<T>, errors: Undefinable<E>) {
+    this.data = data
+    this.errors = errors
   }
 
   //---------------------------------------------------------
@@ -21,28 +21,28 @@ export class Result<T, E> {
     @returns {Result<T, undefined>}
     */
   public static successful<T>(data: T): Result<T, undefined> {
-    return new Result(data, undefined);
+    return new Result(data, undefined)
   }
 
   /**
    * Create a failed result when no data is present
    *
-   * @param {E[]} errors - The errors to be returned typed in generic E
+   * @param {E} errors - The errors to be returned typed in generic E
    * @returns {Result<undefined, E>}
    */
-  public static failure<E>(errors: E[]): Result<undefined, E> {
-    return new Result(undefined, errors);
+  public static failure<E>(errors: E): Result<undefined, E> {
+    return new Result(undefined, errors)
   }
 
   /**
    * Create a partial success result when both data and errors are present
    *
    * @param {T} data - The data to be returned typed in generic T
-   * @param {E[]} errors - The errors to be returned typed in generic E
+   * @param {E} errors - The errors to be returned typed in generic E
    * @returns {Result<T, E>}
    */
-  public static partialSuccess<T, E>(data: T, errors: E[]): Result<T, E> {
-    return new Result(data, errors);
+  public static partialSuccess<T, E>(data: T, errors: E): Result<T, E> {
+    return new Result(data, errors)
   }
 
   //---------------------------------------------------------
@@ -56,13 +56,10 @@ export class Result<T, E> {
    * @param {fnError} fnError - The function to map the errors
    * @returns {Result<RT, RE>}
    */
-  public map<RT, RE>(
-    fnResult: (data: Undefinable<T>) => RT,
-    fnError: (errors: Undefinable<E[]>) => RE[],
-  ): Result<RT, RE> {
-    const data = fnResult(this.data);
-    const errors = fnError(this.errors);
-    return new Result<RT, RE>(data, errors);
+  public map<RT, RE>(fnResult: (data: Undefinable<T>) => RT, fnError: (errors: Undefinable<E>) => RE): Result<RT, RE> {
+    const data = fnResult(this.data)
+    const errors = fnError(this.errors)
+    return new Result<RT, RE>(data, errors)
   }
 
   /**
@@ -72,7 +69,7 @@ export class Result<T, E> {
    * @returns {Undefinable<RT>}
    */
   public mapData<RT>(fnResult: (data: Undefinable<T>) => RT): Undefinable<RT> {
-    return fnResult(this.data);
+    return fnResult(this.data)
   }
 
   /**
@@ -81,10 +78,8 @@ export class Result<T, E> {
    * @param {fnError} fnError - The function to map the errors
    * @returns {Undefinable<RE>}
    */
-  public mapErrors<RE>(
-    fnError: (errors: Undefinable<E[]>) => RE[],
-  ): Undefinable<RE[]> {
-    return fnError(this.errors);
+  public mapErrors<RE>(fnError: (errors: Undefinable<E>) => RE): Undefinable<RE> {
+    return fnError(this.errors)
   }
 
   //---------------------------------------------------------
@@ -97,7 +92,7 @@ export class Result<T, E> {
    * @returns {boolean}
    */
   public isSuccessful(): boolean {
-    return this.data !== undefined && this.errors === undefined;
+    return this.data !== undefined && this.errors === undefined
   }
 
   /**
@@ -106,7 +101,7 @@ export class Result<T, E> {
    * @returns {boolean}
    */
   public isFailure(): boolean {
-    return this.data === undefined && this.errors !== undefined;
+    return this.data === undefined && this.errors !== undefined
   }
 
   /**
@@ -115,7 +110,7 @@ export class Result<T, E> {
    * @returns {boolean}
    */
   public isPartialSuccess(): boolean {
-    return this.data !== undefined && this.errors !== undefined;
+    return this.data !== undefined && this.errors !== undefined
   }
 
   //---------------------------------------------------------
@@ -128,7 +123,7 @@ export class Result<T, E> {
    * @returns {boolean}
    */
   public hasData(): boolean {
-    return this.data !== undefined;
+    return this.data !== undefined
   }
 
   /**
@@ -137,7 +132,7 @@ export class Result<T, E> {
    * @returns {Undefinable<T>}
    */
   public getData(): Undefinable<T> {
-    return this.data;
+    return this.data
   }
 
   //---------------------------------------------------------
@@ -147,8 +142,8 @@ export class Result<T, E> {
   /**
    * Get the errors from the result
    */
-  public getErrors(): Undefinable<E[]> {
-    return this.errors;
+  public getErrors(): Undefinable<E> {
+    return this.errors
   }
 
   /**
@@ -157,7 +152,7 @@ export class Result<T, E> {
    * @returns {boolean}
    */
   public hasErrors(): boolean {
-    return this.errors !== undefined;
+    return this.errors !== undefined
   }
 
   /**
@@ -166,6 +161,10 @@ export class Result<T, E> {
    * @returns {number}
    */
   public errorCount(): number {
-    return this.errors !== undefined ? this.errors.length : 0;
+    if (this.errors && Array.isArray(this.errors)) {
+      return this.errors.length
+    }
+
+    return this.errors !== undefined ? 1 : 0
   }
 }

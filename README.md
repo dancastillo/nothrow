@@ -20,7 +20,7 @@ pnpm install @dancastillo/nothrow
 ## Usage
 
 ```typescript
-import { Result } from "neverthrow";
+import { Result } from 'neverthrow'
 ```
 
 ## API Documentation
@@ -30,7 +30,7 @@ import { Result } from "neverthrow";
 Constructs a successful result with no errors
 
 ```typescript
-const result = Result.successful({ success: true });
+const result = Result.successful({ success: true })
 // result.data = { success: true }
 // result.errors = undefined
 ```
@@ -40,7 +40,7 @@ const result = Result.successful({ success: true });
 Constructs a failed result with no data
 
 ```typescript
-const result = Result.failure({ success: false });
+const result = Result.failure({ success: false })
 // result.data = undefined
 // result.errors = { success: false }
 ```
@@ -50,10 +50,7 @@ const result = Result.failure({ success: false });
 Constructs a result with data and errors
 
 ```typescript
-const result = Result.partialSuccess({ success: true }, [
-  { error: "Missing input" },
-  { error: "Not found" },
-]);
+const result = Result.partialSuccess({ success: true }, [{ error: 'Missing input' }, { error: 'Not found' }])
 // result.data ={ success: true }
 // result.errors = [{ error: 'Missing input' }, { error: 'Not found' }]
 ```
@@ -65,14 +62,14 @@ Map the data result and errors result to the wanted type. This method takes in t
 ```typescript
 const mappedResult = result.map(
   (data: DataType) => {
-    return <MappedDataType>{ id: data.id };
+    return <MappedDataType>{ id: data.id }
   },
   (errors: ErrorType) => {
     return <MappedErrorType[]>errors.map((err) => {
-      error: err.message;
-    });
-  },
-);
+      error: err.message
+    })
+  }
+)
 ```
 
 ### `mapData`
@@ -81,8 +78,8 @@ Map the data result and errors result to the wanted type. This method takes in t
 
 ```typescript
 const mappedResult = result.mapData((data: DataType) => {
-  return <MappedDataType>{ id: data.id };
-});
+  return <MappedDataType>{ id: data.id }
+})
 ```
 
 ### `mapErrors`
@@ -92,9 +89,9 @@ Map the data result and errors result to the wanted type. This method takes in t
 ```typescript
 const mappedResult = result.mapErrors((errors: ErrorType) => {
   return <MappedErrorType[]>errors.map((err) => {
-    error: err.message;
-  });
-});
+    error: err.message
+  })
+})
 ```
 
 ### `isSuccessful`

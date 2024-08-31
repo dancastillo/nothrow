@@ -1,9 +1,9 @@
 /**
  * Result Class object
  */
-export { Result } from "./result";
+export { Result } from './result'
 
 /**
  * Type
  */
-export type { Undefinable } from "./types";
+export type { Undefinable } from './types'
