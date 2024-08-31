@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "pretty": true,
+    "noEmitOnError": true,
+    "rootDir": ".",
+    "newLine": "lf",
+    "lib": ["ESNext"]
+  },
+  "include": ["src", "test"]
+}
