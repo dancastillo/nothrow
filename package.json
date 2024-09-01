@@ -3,16 +3,45 @@
   "version": "0.0.1",
   "description": "A package to handle errors as a result",
   "main": "dist/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "homepage": "https://github.com/dancastillo/nothrow",
+  "bugs": {
+    "url": "https://github.com/dancastillo/nothrow/issues"
+  },
+  "author": "Dan Castillo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dancastillo/nothrow"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "error",
+    "nothrow",
+    "result",
+    "throw"
+  ],
   "scripts": {
     "test": "tsc --project tsconfig.test.json && borp --coverage",
-    "format": "prettier --write .",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
     "lint": "eslint ./src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "build": "tsup",
+    "check-exports": "attw --pack .",
+    "prepublish": "pnpm build && pnpm check-exports && pnpm lint && pnpm format && pnpm test"
   },
-  "keywords": [],
-  "author": "Dan Castillo",
-  "license": "MIT",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.15.4",
+    "@changesets/cli": "^2.27.7",
     "@eslint/js": "^9.9.1",
     "@types/node": "^22.5.0",
     "borp": "^0.17.0",
@@ -22,6 +51,7 @@
     "husky": "^9.1.5",
     "lint-staged": "^15.2.9",
     "prettier": "^3.3.3",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.2.0"
   },
