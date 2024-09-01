@@ -1,8 +1,9 @@
 {
   "name": "@dancastillo/nothrow",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A package to handle errors as a result",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
