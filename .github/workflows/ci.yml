@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches:
+     - main
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    branches:
+     - main
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  test:
+    uses: dancastillo/workflows/.github/workflows/ts-package-ci.yml@main
