@@ -1,6 +1,6 @@
 {
   "name": "@dancastillo/nothrow",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A package to handle errors as a result",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
