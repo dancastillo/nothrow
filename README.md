@@ -20,7 +20,7 @@ pnpm install @dancastillo/nothrow
 ## Usage
 
 ```typescript
-import { Result } from 'neverthrow'
+import { Result } from '@dancastillo/nothrow'
 ```
 
 ## API Documentation
