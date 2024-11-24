@@ -2,7 +2,7 @@
 
 ## Description
 
-A package to handle errors as a result and not throw errors
+A package to handle results. Success, errors or partial success as results and not throw errors
 
 ## Installation
 
@@ -19,48 +19,57 @@ pnpm install @dancastillo/nothrow
 
 ## Usage
 
+#### TypeScript
+
 ```typescript
-import { Result } from '@dancastillo/nothrow'
+import {
+  type Result,
+  createSuccessfulResult,
+  createFailureResult,
+  createPartialSuccessfulResult,
+} from '@dancastillo/nothrow'
 ```
 
-## API Documentation
+## Method Documentation
 
-### `successful`
+### `createSuccessfulResult`
 
 Constructs a successful result with no errors
 
 ```typescript
-const result = Result.successful({ success: true })
+const result = createSuccessfulResult({ success: true })
 // result.data = { success: true }
-// result.errors = undefined
+// result.errors = []
 ```
 
-### `failure`
+### `createFailureResult`
 
-Constructs a failed result with no data
+Constructs a failure result with no data
 
 ```typescript
-const result = Result.failure({ success: false })
-// result.data = undefined
-// result.errors = { success: false }
+const result = createFailureResult([{ error: true }])
+// result.data = null
+// result.errors = [{ success: false }]
 ```
 
-### `partialSuccess`
+### `createPartialSuccessResult`
 
 Constructs a result with data and errors
 
 ```typescript
-const result = Result.partialSuccess({ success: true }, [{ error: 'Missing input' }, { error: 'Not found' }])
+const result = createPartialSuccessReuslt({ success: true }, [{ error: 'Missing input' }, { error: 'Not found' }])
 // result.data ={ success: true }
 // result.errors = [{ error: 'Missing input' }, { error: 'Not found' }]
 ```
 
-### `map`
+## API Documentation
+
+### `mapTo`
 
 Map the data result and errors result to the wanted type. This method takes in two functions as its arguments
 
 ```typescript
-const mappedResult = result.map(
+const mappedResult = result.mapTo(
   (data: DataType) => {
     return <MappedDataType>{ id: data.id }
   },
@@ -96,35 +105,15 @@ const mappedResult = result.mapErrors((errors: ErrorType) => {
 
 ### `isSuccessful`
 
-Returns `TRUE` if the result was successful and no errors
+Returns `boolean`
 
 ### `isFailure`
 
-Returns `TRUE` if the result was N error reults and no data
+Returns `boolean`
 
 ### `isPartialSuccess`
 
-Returns `FALSE` if the result returned both a data result and error result
-
-### `hasData`
-
-Helper method to determine if the `Result` has data value set
-
-### `getData`
-
-Helper method to retrieve the `Result` data value set
-
-### `hasErrors`
-
-Helper method to determine if the `Result` has error values set
-
-### `getErrors`
-
-Helper method to retrieve the `Result` error values set
-
-### `errorCount`
-
-Helper method to retrieve the `Result` error values count
+Returns `boolean`
 
 ### License
 

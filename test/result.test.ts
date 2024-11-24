@@ -1,95 +1,129 @@
 import { test } from 'node:test'
-import { Result } from '../src'
+import {
+  createFailureResult,
+  createPartialSuccessfulResult,
+  createSuccessfulResult,
+  PartialSuccessfulResult,
+} from '../src/result.js'
+import assert from 'node:assert'
 
-test('result :: should return successful', (t) => {
-  t.plan(8)
+type SuccessType = {
+  success: boolean
+}
 
-  const result = Result.successful({ success: true })
+type FailureType = {
+  errors: boolean
+}
 
-  t.assert.equal(result.isSuccessful(), true)
-  t.assert.equal(result.isFailure(), false)
-  t.assert.equal(result.isPartialSuccess(), false)
-  t.assert.equal(result.hasData(), true)
-  t.assert.deepEqual(result.getData(), { success: true })
-  t.assert.equal(result.hasErrors(), false)
-  t.assert.equal(result.getErrors(), undefined)
-  t.assert.equal(result.errorCount(), 0)
+type FailureMappedType = {
+  errors: boolean
+  mapped: boolean
+}
+
+test('createSuccessfulResult :: methods', () => {
+  const result = createSuccessfulResult({ success: true })
+
+  assert.equal(result.isSuccessful(), true)
+  assert.equal(result.isFailure(), false)
+  assert.equal(result.isPartialSuccess(), false)
+  assert.deepStrictEqual(result.data, { success: true })
+  assert.equal(result.errors.length, 0)
 })
 
-test('result :: should return failure', (t) => {
-  t.plan(8)
+test('createFailureResult :: methods', () => {
+  const result = createFailureResult(['error'])
 
-  const result = Result.failure({ success: false })
-
-  t.assert.equal(result.isFailure(), true)
-  t.assert.equal(result.isSuccessful(), false)
-  t.assert.equal(result.isPartialSuccess(), false)
-  t.assert.equal(result.hasData(), false)
-  t.assert.equal(result.getData(), undefined)
-  t.assert.equal(result.hasErrors(), true)
-  t.assert.deepEqual(result.getErrors(), { success: false })
-  t.assert.equal(result.errorCount(), 1)
+  assert.equal(result.isFailure(), true)
+  assert.equal(result.isSuccessful(), false)
+  assert.equal(result.isPartialSuccess(), false)
 })
 
-test('result :: should count errors', (t) => {
-  t.plan(3)
+test('createPartialSuccessfulResult :: methods', () => {
+  const result = createPartialSuccessfulResult({ success: true }, [{ errors: true }])
 
-  const threeErrors = Result.failure([{ one: true }, { two: true }, { three: true }])
-  const oneError = Result.failure({ one: true })
-  const zeroErrors = Result.failure(undefined)
-
-  t.assert.equal(threeErrors.errorCount(), 3)
-  t.assert.equal(oneError.errorCount(), 1)
-  t.assert.equal(zeroErrors.errorCount(), 0)
-})
-test('result :: should return partial success', (t) => {
-  t.plan(8)
-
-  const result = Result.partialSuccess({ success: true }, { errors: true })
-
-  t.assert.equal(result.isPartialSuccess(), true)
-  t.assert.equal(result.isFailure(), false)
-  t.assert.equal(result.isSuccessful(), false)
-  t.assert.equal(result.hasData(), true)
-  t.assert.deepEqual(result.getData(), { success: true })
-  t.assert.equal(result.hasErrors(), true)
-  t.assert.deepEqual(result.getErrors(), { errors: true })
-  t.assert.equal(result.errorCount(), 1)
+  assert.strictEqual(result.isPartialSuccess(), true)
+  assert.strictEqual(result.isFailure(), false)
+  assert.strictEqual(result.isSuccessful(), false)
 })
 
-test('result :: map successful result', (t) => {
-  t.plan(1)
-
-  const result = Result.successful({ success: true })
-  const mappedResult = result.mapData((data) => ({
+test('createSuccessfulResult :: mapData', () => {
+  const result = createSuccessfulResult({ success: true })
+  const mappedResult = result.mapData((data: { success: boolean }) => ({
     success: data?.success,
     mapped: true,
   }))
 
-  t.assert.deepEqual(mappedResult, { success: true, mapped: true })
+  assert.deepStrictEqual(mappedResult, { success: true, mapped: true })
 })
 
-test('result :: map failed result', (t) => {
-  t.plan(1)
-
-  const result = Result.failure([{ errors: true }])
-  const mappedResult = result.mapErrors((errors) => errors?.map((error) => ({ errors: error.errors, mapped: true })))
-
-  t.assert.deepEqual(mappedResult, [{ errors: true, mapped: true }])
-})
-
-test('result :: map result', (t) => {
-  t.plan(2)
-
-  const result = Result.partialSuccess({ success: true }, [{ errors: true }])
-  const mappedResult = result.map(
-    (data) => ({
-      success: data?.success,
-      mapped: true,
-    }),
-    (errors) => errors?.map((error) => ({ errors: error.errors, mapped: true }))
+test('createSuccessfulResult :: mapTo', () => {
+  const result = createSuccessfulResult({ success: true })
+  const mappedResult = result.mapTo(
+    (data: { success: boolean }) => ({ success: data?.success, mapped: true }),
+    (errors) => errors
   )
 
-  t.assert.deepEqual(mappedResult.data, { success: true, mapped: true })
-  t.assert.deepEqual(mappedResult.errors, [{ errors: true, mapped: true }])
+  assert.deepStrictEqual(mappedResult, { data: { success: true, mapped: true }, errors: [] })
+})
+
+test('createSuccessfulResult :: mapErrors', () => {
+  const result = createSuccessfulResult({ success: true })
+  const mappedResult = result.mapErrors((errors) => errors)
+
+  assert.deepStrictEqual(mappedResult, [])
+})
+
+test('createFailureResult :: mapData', () => {
+  const result = createFailureResult([{ errors: true }])
+  const mappedResult = result.mapData((data) => data)
+
+  assert.deepStrictEqual(mappedResult, null)
+})
+
+test('createFailureResult :: mapTo', () => {
+  const result = createFailureResult([{ errors: true }])
+  const mappedResult = result.mapTo(
+    (data) => data,
+    (errors) => errors
+  )
+
+  assert.deepStrictEqual(mappedResult, { data: null, errors: [{ errors: true }] })
+})
+
+test('createFailureResult :: mapErrors', () => {
+  const result = createFailureResult([{ errors: true }])
+  const mappedResult = result.mapErrors((errors) => errors)
+
+  assert.deepStrictEqual(mappedResult, [{ errors: true }])
+})
+
+test('createPartialSuccessfulResult :: mapData', () => {
+  const result = createPartialSuccessfulResult({ success: true }, [{ errors: true }])
+  const mappedResult = result.mapData((data) => data)
+
+  assert.deepStrictEqual(mappedResult, { success: true })
+})
+
+test('createPartialSuccessfulResult :: mapTo', () => {
+  const result: PartialSuccessfulResult<SuccessType, FailureType> = createPartialSuccessfulResult({ success: true }, [
+    { errors: true },
+  ])
+  const mappedResult = result.mapTo(
+    (data) => data,
+    (errors) => errors
+  )
+
+  assert.deepStrictEqual(mappedResult, { data: { success: true }, errors: [{ errors: true }] })
+})
+
+test('createPartialSuccessfulResult :: mapErrors', () => {
+  const result: PartialSuccessfulResult<SuccessType, FailureType> = createPartialSuccessfulResult({ success: true }, [
+    { errors: true },
+  ])
+  const mappedResult: FailureMappedType[] = result.mapErrors<FailureMappedType>((errors) =>
+    errors.map((error) => ({ errors: error.errors, mapped: true }))
+  )
+
+  assert.strictEqual(result.isPartialSuccess(), true)
+  assert.deepStrictEqual(mappedResult, [{ errors: true, mapped: true }])
 })

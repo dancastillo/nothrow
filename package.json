@@ -1,14 +1,15 @@
 {
   "name": "@dancastillo/nothrow",
-  "version": "0.0.1",
-  "description": "A package to handle errors as a result",
+  "version": "0.0.2",
+  "description": "A package to handle results. Success, errors or partial success as results and not throw errors",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "homepage": "https://github.com/dancastillo/nothrow",
@@ -25,23 +26,22 @@
     "dist"
   ],
   "keywords": [
-    "error",
     "nothrow",
     "result",
-    "throw"
+    "error",
+    "result",
+    "partialSuccess"
   ],
   "scripts": {
-    "test": "tsc --project tsconfig.test.json && borp --coverage",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
+    "test": "rm -rf dist && tsc --project tsconfig.test.json && borp --coverage",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
     "lint": "eslint ./src",
     "prepare": "husky",
-    "build": "tsup",
-    "check-exports": "attw --pack .",
-    "prepublish": "pnpm build && pnpm check-exports && pnpm lint && pnpm format && pnpm test"
+    "build": "rm -rf dist && tsup",
+    "prepublish": "pnpm lint && pnpm format:check && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.17.0",
     "@changesets/cli": "^2.27.7",
     "@eslint/js": "^9.9.1",
     "@types/node": "^22.5.0",
