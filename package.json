@@ -1,6 +1,6 @@
 {
   "name": "@dancastillo/nothrow",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A package to handle results. Success, errors or partial success as results and not throw errors",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
