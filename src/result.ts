@@ -4,43 +4,43 @@
 type Nullable<T> = T | null
 
 //---------------------------------------------------------
-// Result Types
+// Result Types (predicate methods + mappers)
 //---------------------------------------------------------
 
-export type SuccessfulResult<T> = {
-  data: T
-  errors: never[]
-  isSuccessful: () => true
-  isFailure: () => false
-  isPartialSuccess: () => false
-  mapTo: <RT, RE>(mapResultData: (data: T) => RT, mapResultErrors: (errors: never[]) => RE[]) => MappedResult<RT, RE>
-  mapData: <RT>(mapResultData: (data: T) => RT) => RT
-  mapErrors: <RE>(mapResultErrors: (errors: never[]) => RE[]) => RE[]
+export interface SuccessfulResult<T, E = never> {
+  readonly data: T
+  readonly errors: never[]
+  isSuccessful(): this is SuccessfulResult<T, E>
+  isFailure(): this is FailureResult<E>
+  isPartialSuccess(): this is PartialSuccessfulResult<T, E>
+  mapTo<RT, RE>(mapResultData: (data: T) => RT, mapResultErrors: (errors: never[]) => RE[]): MappedResult<RT, RE>
+  mapData<RT>(mapResultData: (data: T) => RT): RT
+  mapErrors<RE>(mapResultErrors: (errors: never[]) => RE[]): RE[]
 }
 
-export type FailureResult<E> = {
-  data: null
-  errors: E[]
-  isSuccessful: () => false
-  isFailure: () => true
-  isPartialSuccess: () => false
-  mapTo: <RT, RE>(
+export interface FailureResult<E> {
+  readonly data: null
+  readonly errors: E[]
+  isSuccessful(): this is SuccessfulResult<never, E>
+  isFailure(): this is FailureResult<E>
+  isPartialSuccess(): this is PartialSuccessfulResult<never, E>
+  mapTo<RT, RE>(
     mapResultData: (data: null) => Nullable<RT>,
     mapResultErrors: (errors: E[]) => RE[]
-  ) => FailedMappedResult<RT, RE>
-  mapData: <RT>(mapResultData: (data: null) => null) => Nullable<RT>
-  mapErrors: <RE>(mapResultErrors: (errors: E[]) => RE[]) => RE[]
+  ): FailedMappedResult<RT, RE>
+  mapData<RT>(mapResultData: (data: null) => Nullable<RT>): Nullable<RT>
+  mapErrors<RE>(mapResultErrors: (errors: E[]) => RE[]): RE[]
 }
 
-export type PartialSuccessfulResult<T, E> = {
-  data: T
-  errors: E[]
-  isSuccessful: () => false
-  isFailure: () => false
-  isPartialSuccess: () => true
-  mapTo: <RT, RE>(mapResultData: (data: T) => RT, mapResultErrors: (errors: E[]) => RE[]) => MappedResult<RT, RE>
-  mapData: <RT>(mapResultData: (data: T) => RT) => RT
-  mapErrors: <RE>(mapResultErrors: (errors: E[]) => RE[]) => RE[]
+export interface PartialSuccessfulResult<T, E> {
+  readonly data: T
+  readonly errors: E[]
+  isSuccessful(): this is SuccessfulResult<T, E>
+  isFailure(): this is FailureResult<E>
+  isPartialSuccess(): this is PartialSuccessfulResult<T, E>
+  mapTo<RT, RE>(mapResultData: (data: T) => RT, mapResultErrors: (errors: E[]) => RE[]): MappedResult<RT, RE>
+  mapData<RT>(mapResultData: (data: T) => RT): RT
+  mapErrors<RE>(mapResultErrors: (errors: E[]) => RE[]): RE[]
 }
 
 export type MappedResult<RT, RE> = {
@@ -53,7 +53,7 @@ export type FailedMappedResult<RT, RE> = {
   errors: RE[]
 }
 
-export type Result<T, E> = SuccessfulResult<T> | FailureResult<E> | PartialSuccessfulResult<T, E>
+export type Result<T, E> = SuccessfulResult<T, E> | FailureResult<E> | PartialSuccessfulResult<T, E>
 
 //---------------------------------------------------------
 // Factory Functions
@@ -61,57 +61,78 @@ export type Result<T, E> = SuccessfulResult<T> | FailureResult<E> | PartialSucce
 
 export function createSuccessfulResult<T>(data: T): SuccessfulResult<T> {
   return {
-    data: data,
+    data,
     errors: [],
-    isSuccessful: (): true => true,
-    isFailure: (): false => false,
-    isPartialSuccess: (): false => false,
-    mapTo: <RT, RE>(
-      mapResultData: (data: T) => RT,
-      mapResultErrors: (errors: []) => RE[]
-    ): { data: RT; errors: RE[] } => ({
-      data: mapResultData(data),
-      errors: mapResultErrors([]),
-    }),
-    mapData: <RT>(mapResultData: (data: T) => RT): RT => mapResultData(data),
-    mapErrors: <RE>(mapResultErrors: (errors: never[]) => RE[]): RE[] => mapResultErrors([]),
+    isSuccessful(): this is SuccessfulResult<T> {
+      return true
+    },
+    isFailure(): this is FailureResult<never> {
+      return false
+    },
+    isPartialSuccess(): this is PartialSuccessfulResult<T, never> {
+      return false
+    },
+    mapTo<RT, RE>(mapResultData: (d: T) => RT, mapResultErrors: (_e: never[]) => RE[]): MappedResult<RT, RE> {
+      return { data: mapResultData(data), errors: mapResultErrors([]) }
+    },
+    mapData<RT>(mapResultData: (d: T) => RT): RT {
+      return mapResultData(data)
+    },
+    mapErrors<RE>(mapResultErrors: (_e: never[]) => RE[]): RE[] {
+      return mapResultErrors([])
+    },
   }
 }
 
 export function createFailureResult<E>(errors: E[]): FailureResult<E> {
   return {
     data: null,
-    errors: errors,
-    isSuccessful: (): false => false,
-    isFailure: (): true => true,
-    isPartialSuccess: (): false => false,
-    mapTo: <RT, RE>(
-      mapResultData: (data: null) => Nullable<RT>,
-      mapResultErrors: (errors: E[]) => RE[]
-    ): { data: Nullable<RT>; errors: RE[] } => ({
-      data: mapResultData(null),
-      errors: mapResultErrors(errors),
-    }),
-    mapData: <RT>(mapResultData: (data: null) => RT): RT => mapResultData(null),
-    mapErrors: <RE>(mapResultErrors: (errors: E[]) => RE[]): RE[] => mapResultErrors(errors),
+    errors,
+    isSuccessful(): this is SuccessfulResult<never, E> {
+      return false
+    },
+    isFailure(): this is FailureResult<E> {
+      return true
+    },
+    isPartialSuccess(): this is PartialSuccessfulResult<never, E> {
+      return false
+    },
+    mapTo<RT, RE>(
+      mapResultData: (_: null) => Nullable<RT>,
+      mapResultErrors: (e: E[]) => RE[]
+    ): FailedMappedResult<RT, RE> {
+      return { data: mapResultData(null), errors: mapResultErrors(errors) }
+    },
+    mapData<RT>(mapResultData: (_: null) => Nullable<RT>): Nullable<RT> {
+      return mapResultData(null)
+    },
+    mapErrors<RE>(mapResultErrors: (e: E[]) => RE[]): RE[] {
+      return mapResultErrors(errors)
+    },
   }
 }
 
 export function createPartialSuccessfulResult<T, E>(data: T, errors: E[]): PartialSuccessfulResult<T, E> {
   return {
-    data: data,
-    errors: errors,
-    isSuccessful: (): false => false,
-    isFailure: (): false => false,
-    isPartialSuccess: (): true => true,
-    mapTo: <RT, RE>(
-      mapResultData: (data: T) => RT,
-      mapResultErrors: (errors: E[]) => RE[]
-    ): { data: RT; errors: RE[] } => ({
-      data: mapResultData(data),
-      errors: mapResultErrors(errors),
-    }),
-    mapData: <RT>(mapResultData: (data: T) => RT): RT => mapResultData(data),
-    mapErrors: <RE>(mapResultErrors: (errors: E[]) => RE[]): RE[] => mapResultErrors(errors),
+    data,
+    errors,
+    isSuccessful(): this is SuccessfulResult<T, E> {
+      return false
+    },
+    isFailure(): this is FailureResult<E> {
+      return false
+    },
+    isPartialSuccess(): this is PartialSuccessfulResult<T, E> {
+      return true
+    },
+    mapTo<RT, RE>(mapResultData: (d: T) => RT, mapResultErrors: (e: E[]) => RE[]): MappedResult<RT, RE> {
+      return { data: mapResultData(data), errors: mapResultErrors(errors) }
+    },
+    mapData<RT>(mapResultData: (d: T) => RT): RT {
+      return mapResultData(data)
+    },
+    mapErrors<RE>(mapResultErrors: (e: E[]) => RE[]): RE[] {
+      return mapResultErrors(errors)
+    },
   }
 }
