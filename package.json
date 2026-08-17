@@ -42,7 +42,7 @@
     "prepublish": "pnpm lint && pnpm format:check && pnpm test && pnpm build"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.7",
+    "@changesets/cli": "^3.0.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.0.0",
     "borp": "^0.21.0",
